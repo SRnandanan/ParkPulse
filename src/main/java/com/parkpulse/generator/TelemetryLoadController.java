@@ -1,16 +1,21 @@
 package com.parkpulse.generator;
 
+import com.parkpulse.dto.GateSensorRequest;
+import com.parkpulse.dto.ParkingBayRequest;
+import com.parkpulse.dto.PaymentKioskRequest;
 import com.parkpulse.model.GateSensorEvent;
+import com.parkpulse.model.ParkingBayEvent;
+import com.parkpulse.model.PaymentKioskEvent;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.parkpulse.model.ParkingBayEvent;
-import com.parkpulse.model.PaymentKioskEvent;
-
+import static com.parkpulse.constants.ParkPulseConstants.BURST;
+import org.springframework.http.ResponseEntity;
 
 @RestController
-@RequestMapping("/api/telemetry/generate")
+@RequestMapping("/api/telemetry")
 public class TelemetryLoadController {
 
     private final TelemetryLoadGenerator loadGenerator;
@@ -20,23 +25,50 @@ public class TelemetryLoadController {
     }
 
     @PostMapping("/gate")
-    public GateSensorEvent generateGateEvent(
-            @RequestParam(defaultValue = "test-facility") String facilityId,
-            @RequestParam(defaultValue = "gate-1") String gateId) {
-        return loadGenerator.generateAndPublishGateEvent(facilityId, gateId);
+    public ResponseEntity<GateSensorEvent> generateGateEvent(
+        @RequestBody(required = false) GateSensorRequest request,
+        @RequestParam (required = false) String mode
+    ) {
+        String facilityId = request != null && request.facilityId() != null ? request.facilityId() : "test-facility";
+        String gateId = request != null && request.gateId() != null ? request.gateId() : "gate-1";
+        if(BURST.equalsIgnoreCase(mode)) {
+            // Generate a burst of events
+            loadGenerator.generateGateEventBurst(facilityId, gateId, 10000);
+            return ResponseEntity.status(200).build();
+        }
+        GateSensorEvent gateSensorEvent = loadGenerator.generateAndPublishGateEvent(facilityId, gateId);
+        return ResponseEntity.status(202).body(gateSensorEvent);
     }
 
-    @PostMapping ("/bay")
-    public ParkingBayEvent generateBayEvent(
-            @RequestParam(defaultValue = "test-facility") String facilityId,
-            @RequestParam(defaultValue = "bay-1") String bayId) {
-        return loadGenerator.generateAndPublishBayEvent(facilityId, bayId);
+    @PostMapping("/bay")
+    public ResponseEntity<ParkingBayEvent> generateBayEvent(
+        @RequestBody(required = false) ParkingBayRequest request,
+        @RequestParam (required = false) String mode
+    ) {
+        String facilityId = request != null && request.facilityId() != null ? request.facilityId() : "test-facility";
+        String bayId = request != null && request.bayId() != null ? request.bayId() : "bay-1";
+        if(BURST.equalsIgnoreCase(mode)) {
+            // Generate a burst of events
+            loadGenerator.generateBayEventBurst(facilityId, bayId, 10000);
+            return ResponseEntity.status(200).build();
+        }
+        ParkingBayEvent parkingBayEvent = loadGenerator.generateAndPublishBayEvent(facilityId, bayId);
+        return ResponseEntity.status(202).body(parkingBayEvent);
     }
 
-    @PostMapping ("/kiosk")
-    public PaymentKioskEvent generateKioskEvent(
-            @RequestParam(defaultValue = "test-facility") String facilityId,
-            @RequestParam(defaultValue = "kiosk-1") String kioskId) {
-        return loadGenerator.generateAndPublishPaymentEvent(facilityId, kioskId);
+    @PostMapping("/kiosk")
+    public ResponseEntity<PaymentKioskEvent> generateKioskEvent(
+        @RequestBody(required = false) PaymentKioskRequest request,
+        @RequestParam (required = false) String mode
+    ) {
+        String facilityId = request != null && request.facilityId() != null ? request.facilityId() : "test-facility";
+        String kioskId = request != null && request.kioskId() != null ? request.kioskId() : "kiosk-1";
+        if(BURST.equalsIgnoreCase(mode)) {
+            // Generate a burst of events
+            loadGenerator.generatePaymentEventBurst(facilityId, kioskId, 10000);
+            return ResponseEntity.status(200).build();
+        }
+        PaymentKioskEvent paymentKioskEvent = loadGenerator.generateAndPublishPaymentEvent(facilityId, kioskId);
+        return ResponseEntity.status(202).body(paymentKioskEvent);
     }
 }
