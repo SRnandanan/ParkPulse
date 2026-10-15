@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: parkpulse-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/parkpulse_db
+    username: parkpulse
+    password: parkpulse_pass
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: parkpulse-telemetry-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.parkpulse.*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    listener:
+      concurrency: 3
+
+aws:
+  s3:
+    endpoint: http://localhost:9000
+    access-key: minioadmin
+    secret-key: minioadmin
+    bucket-name: parkpulse-telemetry-archive
+    region: us-east-1
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
