@@ -6,7 +6,6 @@ import com.parkpulse.model.ParkingBayEvent;
 import com.parkpulse.model.PaymentKioskEvent;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
 import java.util.UUID;
 import java.util.Random;
 import java.time.Instant;
@@ -17,7 +16,6 @@ public class TelemetryLoadGenerator {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Autowired
     public TelemetryLoadGenerator(KafkaTemplate<String, Object> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
