@@ -17,6 +17,38 @@ services:
       timeout: 5s
       retries: 5
 
+  partition-scheduler:
+    image: postgres:15-alpine
+    container_name: parkpulse-partition-scheduler
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGPORT: 5432
+      PGDATABASE: parkpulse_db
+      PGUSER: parkpulse
+      PGPASSWORD: parkpulse_pass
+    volumes:
+      - ./scripts/create_daily_partitions.sql:/scripts/create_daily_partitions.sql:ro
+    restart: unless-stopped
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -eu
+        while true; do
+          psql -v ON_ERROR_STOP=1 -f /scripts/create_daily_partitions.sql
+          hour=$$(date -u +%H); hour=$${hour#0}; hour=$${hour:-0}
+          minute=$$(date -u +%M); minute=$${minute#0}; minute=$${minute:-0}
+          second=$$(date -u +%S); second=$${second#0}; second=$${second:-0}
+          now_seconds=$$((hour * 3600 + minute * 60 + second))
+          delay=$$((7200 - now_seconds))
+          if [ "$$delay" -le 0 ]; then delay=$$((delay + 86400)); fi
+          echo "Next partition run in $$delay seconds (scheduled for 02:00 UTC)."
+          sleep "$$delay"
+        done
+
   redis:
     image: redis:7.2-alpine
     container_name: parkpulse-redis
