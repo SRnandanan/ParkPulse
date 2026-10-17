@@ -4,6 +4,7 @@ import com.parkpulse.config.KafkaConfig;
 import com.parkpulse.model.GateSensorEvent;
 import com.parkpulse.model.ParkingBayEvent;
 import com.parkpulse.model.PaymentKioskEvent;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import java.util.UUID;
@@ -91,6 +92,7 @@ public class TelemetryLoadGenerator {
      * @param gateId     the gate identifier
      * @param count      number of events to generate
      */
+    @Async
     public void generateGateEventBurst(String facilityId, String gateId, int count) {
         for (int i = 0; i < count; i++) {
             generateAndPublishGateEvent(facilityId, gateId);
@@ -111,6 +113,7 @@ public class TelemetryLoadGenerator {
      * @param bayId      the parking bay identifier
      * @param count      number of events to generate
      */
+    @Async
     public void generateBayEventBurst(String facilityId, String bayId, int count) {
         for (int i = 0; i < count; i++) {
             generateAndPublishBayEvent(facilityId, bayId);
@@ -130,6 +133,7 @@ public class TelemetryLoadGenerator {
      * @param kioskId    the kiosk identifier
      * @param count      number of events to generate
      */
+    @Async
     public void generatePaymentEventBurst(String facilityId, String kioskId, int count) {
         for (int i = 0; i < count; i++) {
             generateAndPublishPaymentEvent(facilityId, kioskId);

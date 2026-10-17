@@ -25,7 +25,7 @@ public class TelemetryLoadController {
     }
 
     @PostMapping("/gate")
-    public ResponseEntity<GateSensorEvent> generateGateEvent(
+    public ResponseEntity<?> generateGateEvent(
         @RequestBody(required = false) GateSensorRequest request,
         @RequestParam (required = false) String mode
     ) {
@@ -34,14 +34,14 @@ public class TelemetryLoadController {
         if(BURST.equalsIgnoreCase(mode)) {
             // Generate a burst of events
             loadGenerator.generateGateEventBurst(facilityId, gateId, 10000);
-            return ResponseEntity.status(200).build();
+            return ResponseEntity.status(202).body("Burst of gate events accepted for processing");
         }
         GateSensorEvent gateSensorEvent = loadGenerator.generateAndPublishGateEvent(facilityId, gateId);
-        return ResponseEntity.status(202).body(gateSensorEvent);
+        return ResponseEntity.status(200).body(gateSensorEvent);
     }
 
     @PostMapping("/bay")
-    public ResponseEntity<ParkingBayEvent> generateBayEvent(
+    public ResponseEntity<?> generateBayEvent(
         @RequestBody(required = false) ParkingBayRequest request,
         @RequestParam (required = false) String mode
     ) {
@@ -50,14 +50,14 @@ public class TelemetryLoadController {
         if(BURST.equalsIgnoreCase(mode)) {
             // Generate a burst of events
             loadGenerator.generateBayEventBurst(facilityId, bayId, 10000);
-            return ResponseEntity.status(200).build();
+            return ResponseEntity.status(202).body("Burst of bay events accepted for processing");
         }
         ParkingBayEvent parkingBayEvent = loadGenerator.generateAndPublishBayEvent(facilityId, bayId);
-        return ResponseEntity.status(202).body(parkingBayEvent);
+        return ResponseEntity.status(200).body(parkingBayEvent);
     }
 
     @PostMapping("/kiosk")
-    public ResponseEntity<PaymentKioskEvent> generateKioskEvent(
+    public ResponseEntity<?> generateKioskEvent(
         @RequestBody(required = false) PaymentKioskRequest request,
         @RequestParam (required = false) String mode
     ) {
@@ -66,9 +66,9 @@ public class TelemetryLoadController {
         if(BURST.equalsIgnoreCase(mode)) {
             // Generate a burst of events
             loadGenerator.generatePaymentEventBurst(facilityId, kioskId, 10000);
-            return ResponseEntity.status(200).build();
+            return ResponseEntity.status(202).body("Burst of payment events accepted for processing");
         }
         PaymentKioskEvent paymentKioskEvent = loadGenerator.generateAndPublishPaymentEvent(facilityId, kioskId);
-        return ResponseEntity.status(202).body(paymentKioskEvent);
+        return ResponseEntity.status(200).body(paymentKioskEvent);
     }
 }
