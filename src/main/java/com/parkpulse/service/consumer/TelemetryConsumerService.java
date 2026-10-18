@@ -44,11 +44,13 @@ public class TelemetryConsumerService {
         telemetryEventRepository.save(event.getId(), event.getEventType(), event.getSourceService(),
             event.getFacilityId(), event.getEventTimestamp(), event);
 
-        String bayId = event.getBayIdOrDefault();
-        if ("ENTRY".equalsIgnoreCase(event.getEventType()) && event.getLicensePlate() != null) {
-            redisOccupancyService.incrementOccupancy(event.getFacilityId(), bayId);
-        } else if ("EXIT".equalsIgnoreCase(event.getEventType()) && event.getLicensePlate() != null) {
-            redisOccupancyService.decrementOccupancy(event.getFacilityId(), bayId);
+        String bayId = event.getBayId();
+        if (bayId != null && !bayId.isBlank() && event.getLicensePlate() != null) {
+            if ("ENTRY".equalsIgnoreCase(event.getEventType())) {
+                redisOccupancyService.transitionOccupancy(event.getFacilityId(), bayId, true);
+            } else if ("EXIT".equalsIgnoreCase(event.getEventType())) {
+                redisOccupancyService.transitionOccupancy(event.getFacilityId(), bayId, false);
+            }
         }
     }
 
@@ -72,9 +74,9 @@ public class TelemetryConsumerService {
             event.getFacilityId(), event.getEventTimestamp(), event);
 
         if ("OCCUPIED".equalsIgnoreCase(event.getEventType()) && event.getLicensePlate() != null) {
-            redisOccupancyService.incrementOccupancy(event.getFacilityId(), event.getBayId());
+            redisOccupancyService.transitionOccupancy(event.getFacilityId(), event.getBayId(), true);
         } else if ("VACANT".equalsIgnoreCase(event.getEventType())) {
-            redisOccupancyService.decrementOccupancy(event.getFacilityId(), event.getBayId());
+            redisOccupancyService.transitionOccupancy(event.getFacilityId(), event.getBayId(), false);
         }
     }
 

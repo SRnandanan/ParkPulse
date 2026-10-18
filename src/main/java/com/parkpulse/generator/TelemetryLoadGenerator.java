@@ -36,7 +36,7 @@ public class TelemetryLoadGenerator {
         event.setFacilityId(facilityId);
         event.setEventType(ThreadLocalRandom.current().nextBoolean() ? "ENTRY" : "EXIT");
         event.setLicensePlate(generateRandomLicensePlate());
-        event.setBayId(gateId + "-" + ThreadLocalRandom.current().nextInt(1, 20));
+        event.setBayId("bay-" + ThreadLocalRandom.current().nextInt(1, 20));
 
         kafkaTemplate.send(KafkaConfig.TOPIC_GATE_SENSOR, event.getId().toString(), event);
         return event;
