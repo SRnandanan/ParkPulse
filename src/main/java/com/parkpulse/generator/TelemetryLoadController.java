@@ -6,6 +6,7 @@ import com.parkpulse.dto.PaymentKioskRequest;
 import com.parkpulse.model.GateSensorEvent;
 import com.parkpulse.model.ParkingBayEvent;
 import com.parkpulse.model.PaymentKioskEvent;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +27,7 @@ public class TelemetryLoadController {
 
     @PostMapping("/gate")
     public ResponseEntity<?> generateGateEvent(
-        @RequestBody(required = false) GateSensorRequest request,
+        @Valid @RequestBody(required = false) GateSensorRequest request,
         @RequestParam (required = false) String mode
     ) {
         String facilityId = request != null && request.facilityId() != null ? request.facilityId() : "test-facility";
@@ -42,7 +43,7 @@ public class TelemetryLoadController {
 
     @PostMapping("/bay")
     public ResponseEntity<?> generateBayEvent(
-        @RequestBody(required = false) ParkingBayRequest request,
+        @Valid @RequestBody(required = false) ParkingBayRequest request,
         @RequestParam (required = false) String mode
     ) {
         String facilityId = request != null && request.facilityId() != null ? request.facilityId() : "test-facility";
@@ -58,7 +59,7 @@ public class TelemetryLoadController {
 
     @PostMapping("/kiosk")
     public ResponseEntity<?> generateKioskEvent(
-        @RequestBody(required = false) PaymentKioskRequest request,
+        @Valid @RequestBody(required = false) PaymentKioskRequest request,
         @RequestParam (required = false) String mode
     ) {
         String facilityId = request != null && request.facilityId() != null ? request.facilityId() : "test-facility";
